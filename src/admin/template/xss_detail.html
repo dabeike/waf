@@ -1,0 +1,30 @@
+{% include 'header.html' %}
+<section style="width:1140px;margin:30px auto;">
+	<div style="color:white;font-size: 14px;margin-bottom: 11px;padding-bottom:4px;border-bottom:2px solid lightslategrey"><a href="/xss.html">XSS预警中心</a>&nbsp;&nbsp;>&nbsp;&nbsp;xss_{{data.id}} </div>
+	<table style="color:white;font-size: 14px;line-height: 35px" border="1" frame="void" width="1140px" rules="rows">
+		<tr>
+			<th>漏洞类型：</th>
+			<td>{{ data.error_code }}</td>
+		</tr>
+		<tr>
+			<th>URL：</th>
+			<td>{{ data.url }}</td>
+		</tr>
+		<tr>
+			<th>payload:</th>
+			<td>{{ data.payload }}</td>
+		</tr>
+		<tr>
+			<th>页面回放:</th>
+			<td><iframe srcdoc="{{ data.code_xss_area }}" sandbox=""></iframe></td>
+		</tr>
+		<tr>
+			<th>hacker信息</th>
+			<td>cookie: {{ data.cookie }}<br/>ip: {{ data.ip }}</td>
+		</tr>
+		<tr>
+			<th>时间</th>
+			<td>{{ data.time }}</td>
+		</tr>
+	</table>
+</section>

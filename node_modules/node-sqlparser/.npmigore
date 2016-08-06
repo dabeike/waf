@@ -1,0 +1,4 @@
+/node_modules/
+/peg/
+/test/
+Makefile

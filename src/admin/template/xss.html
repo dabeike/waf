@@ -1,0 +1,246 @@
+{% include 'header.html' %}
+<script src="../jquery-1.10.2.min.js"></script>
+<script src="../bootstrap/js/bootstrap.min.js"></script>
+<section style="width:1140px;margin:30px auto;">
+    <ul id="myTab" class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#log" id="log-tab" role="tab" data-toggle="tab" aria-controls="log" aria-expanded="true">日志</a></li>
+        <li role="presentation" class=""><a href="#url_list" role="tab" id="list-tab" data-toggle="tab" aria-controls="url_list" aria-expanded="false">黑/白名单</a></li>
+        <li role="presentation" class=""><a href="#xss_config" role="tab" id="xss-config-tab" data-toggle="tab" aria-controls="xss_config" aria-expanded="false">设置</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div id="log" role="tabpanel" class="tab-pane fade active in" aria-labelledby="log-tab" style="padding-top:10px">
+            <a href="/xss_log/get_all" style="font-weight: bold">查看所有日志</a>
+            <table class="table table-bordered" style="color: white;font-size: 13px;margin-top: 10px;word-break:break-all; word-wrap:break-word" width="1140px">
+                <tr style="background-color: #707070">
+                    <th width="40px">编号</th>
+                    <th width="80px">类型</th>
+                    <th>url</th>
+                    <th>payload</th>
+                    <th>xss_area</th>
+                    <th width="70px">detail</th>
+                    <th width="110px">操作</th>
+                </tr>
+                {% for xss in data %}
+                    <tr>
+                        <td><input type="checkbox" name="select" value="{{ xss.id }}"/></td>
+                        <td>{{ xss.error_code }}</td>
+                        <td>{{ xss.url }}</td>
+                        <td>{{ xss.payload }}</td>
+                        <td>{{ xss.code_xss_area }}</td>
+                        <td><a href="/xss_detail/{{ xss.id }}">查看详情</a></td>
+                        <td>
+                            <a href="javascript:statu({{ xss.id }},1)">我知道了</a>&nbsp;&nbsp;<a href="javascript:statu({{ xss.id }},2)" >误报</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+            <div style="margin-top: 20px;color:white">
+                <input type="checkbox" id="check_all" name="checkbox"/>&nbsp;&nbsp;<a href="javascript:statu_all(1)">我知道了</a>&nbsp;&nbsp;<a href="javascript:statu_all(2)">误报</a>
+            </div>
+            
+        </div>
+
+        <div id="url_list" role="tabpanel" class="tab-pane fade fade in" aria-labelledby="list-tab" style="padding-top: 10px;color: white">
+            <b>URL：</b><br/>
+            <div class="clearfix" style="width:100%;line-height: 30px;margin-top: 10px">
+                <div style="border:1px solid grey;width:400px;float: left;padding:4px">
+                    <b>白名单：</b>&nbsp;<a href="javascript:list_add(1)">添加</a> <br/>
+                    {% for key,value in xss_config.list.white_url %}
+                        <a href="javascript:list_del({{ key }},1)">删</a>&nbsp;{{ value }} <br/>
+                    {% endfor %}
+                </div>
+                <div style="border:1px solid grey;width:400px;float: left;margin-left:30px;padding:4px">
+                    <b>黑名单：&nbsp;<a href="javascript:list_add(2)">添加</a> </b><br/>
+                    {% for key,value in xss_config.list.black_url %}
+                        <a href="javascript:list_del({{ key }},2)">删</a>&nbsp;{{ value }} <br/>
+                    {% endfor %}
+                </div>
+            </div>
+            <br/><b>Iframe：</b><br/>
+            <div class="clearfix" style="width:100%;line-height: 30px;margin-top: 10px">
+                <div style="border:1px solid grey;width:400px;float: left;padding:4px">
+                    <b>白名单：</b>&nbsp;<a href="javascript:list_add(3)">添加</a> <br/>
+                    {% for key,value in xss_config.list.white_iframe %}
+                        <a href="javascript:list_del({{ key }},3)">删</a>&nbsp;{{ value }} <br/>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+        <div id="xss_config" role="tabpanel" class="tab-pane fade fade in" aria-labelledby="log-tab" style="padding-top:10px">
+            <table style="line-height: 30px;margin-top: 10px;color:white;font-size: 14px;width:1140px">
+                <tr>
+                    <td colspan="2">
+                        {% if xss_config.basic.is_open %}
+                            <input type="checkbox" checked id="config_xss_option"> &nbsp;<b>XSS防火墙</b>
+                        {% else %}
+                            <input type="checkbox" id="config_xss_option"> &nbsp;<b>XSS防火墙</b>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>DEBUG模式：</td>
+                    <td>
+                        {% if xss_config.basic.is_debug %}
+                            <input type="radio" name="config_debug" id="config_debug_1" value="1" checked><label for="config_debug_1">开</label>&nbsp;&nbsp;
+                            <input type="radio" name="config_debug" id="config_debug_2" value="0"><label for="config_debug_2">关</label>
+                        {% else %}
+                            <input type="radio" name="config_debug" id="config_debug_1" value="1"><label for="config_debug_1">开</label>&nbsp;&nbsp;
+                            <input type="radio" name="config_debug" id="config_debug_2" value="0" checked><label for="config_debug_2">关</label>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>可执行函数重写：</td>
+                    <td>
+                        {% if xss_config.basic.eval_rewrite %}
+                            <input type="radio" name="config_eval" id="config_eval_1" value="1" checked><label for="config_eval_1">开</label>&nbsp;&nbsp;
+                            <input type="radio" name="config_eval" id="config_eval_2" value="0"><label for="config_eval_2">关</label>
+                        {% else %}
+                            <input type="radio" name="config_eval" id="config_eval_1" value="1"><label for="config_eval_1">开</label>&nbsp;&nbsp;
+                            <input type="radio" name="config_eval" id="config_eval_2" checked value="0"><label for="config_eval_2">关</label>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>脚本拦截：</td>
+                    <td>
+                        {% if xss_config.basic.script_protect %}
+                            <input type="radio" name="config_script" id="config_script_1" value="1" checked><label for="config_script_1">开</label>&nbsp;&nbsp;
+                            <input type="radio" name="config_script" id="config_script_2" value="0"><label for="config_script_2">关</label>
+                        {% else %}
+                            <input type="radio" name="config_script" id="config_script_1" value="1"><label for="config_script_1">开</label>&nbsp;&nbsp;
+                            <input type="radio" name="config_script" id="config_script_2" value="0" checked><label for="config_script_2">关</label>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td width="100px">Iframe拦截：</td>
+                    <td>
+                        {% if xss_config.basic.iframe_protect==0 %}
+                            <input type="radio" name="config_iframe" id="config_iframe_1" value="2"><label for="config_iframe_1">拦截所有非白名单的iframe</label>&nbsp;&nbsp
+                            <input type="radio" name="config_iframe" id="config_iframe_2" value="1"><label for="config_iframe_2">拦截所有Iframe</label>&nbsp;&nbsp;
+                            <input type="radio" name="config_iframe" id="config_iframe_3" value="0" checked><label for="config_iframe_3">不拦截</label>
+                        {% elif xss_config.basic.iframe_protect==1 %}
+                            <input type="radio" name="config_iframe" id="config_iframe_1" value="2"><label for="config_iframe_1">拦截所有非白名单的iframe</label>&nbsp;&nbsp
+                            <input type="radio" name="config_iframe" id="config_iframe_2" value="1" checked><label for="config_iframe_2">拦截所有Iframe</label>&nbsp;&nbsp;
+                            <input type="radio" name="config_iframe" id="config_iframe_3" value="0"><label for="config_iframe_3">不拦截</label>
+                        {% else %}
+                            <input type="radio" name="config_iframe" id="config_iframe_1" value="2" checked><label for="config_iframe_1">拦截所有非白名单的iframe</label>&nbsp;&nbsp
+                            <input type="radio" name="config_iframe" id="config_iframe_2" value="1"><label for="config_iframe_2">拦截所有Iframe</label>&nbsp;&nbsp;
+                            <input type="radio" name="config_iframe" id="config_iframe_3" value="0"><label for="config_iframe_3">不拦截</label>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr height="40px">
+                    <td colspan="2"><a href="javascript:" id="config_save">保存</a>&nbsp;&nbsp;<a href="javascript:" id="config_reset">重置</a> </td>
+                </tr>
+            </table>
+
+        </div>
+    </div>
+</section>
+<script type="text/javascript">
+jQuery(function($){
+    $(document).ready(function(){
+        if(!{{ xss_config.basic.is_open }}){
+            $('#xss_config table').css("color","grey")
+        }
+    });
+
+    window.statu=function(id,statu){
+        $.post('/xss_statu',{'str':'('+id+')','statu':statu },function(e){
+            if(e['rows']>0){
+                alert('操作成功！共影响 '+e['rows']+' 条数据');
+                window.location.href=window.location.href;
+            }
+        },'json');
+    };
+
+    window.statu_all=function(statu){
+        var str = '(';
+        $("input:checkbox[name='select']:checked").each(function(){
+            str += $(this).attr("value")+','
+        });
+        str = str.slice(0, -1);
+        str += ')';
+
+        $.post('/xss_statu',{'str': str,'statu':statu},function(e){
+            if(e['rows']>0){
+                alert('操作成功！共影响 '+e['rows']+' 条数据');
+                window.location.href=window.location.href;
+            }
+            else{
+                alert('操作失败！请刷新页面后重试');
+            }
+        });
+    };
+
+    $("#check_all").click(function(){
+        var temp = $("input[name='select']");
+        if(!this.checked){
+            temp.attr("checked", false);
+            temp.each(function(e){
+                temp[e].checked=false;
+            })
+        }else{
+            temp.attr("checked", true);
+            temp.each(function(e){
+                temp[e].checked=true;
+            })
+        }
+    });
+
+    window.list_add = function(type) {
+        var content=prompt('请输入要加入黑名单的URL或者iframe地址（不需要添加协议头）. 例：baidu.com、index.html');
+        if(content){
+            $.post('/list_add',{"content":content,"type":type},function(e){
+                if(e.code){
+                    alert('操作成功！')
+                }
+                else{
+                    alert('操作失败！请刷新页面后重试')
+                }
+            });
+        }
+    };
+
+    window.list_del = function(id,type) {
+        $.post('/list_del',{"id":id,"type":type},function(e){
+            if(e.code){
+                alert('操作成功！共影响 '+ e.code+' 条数据')
+            }
+            else{
+                alert('操作失败！请刷新页面后重试')
+            }
+            window.location.href=window.location.href
+        });
+    };
+
+    $('#config_xss_option').click(function(){
+        if(!this.checked){
+            $('#xss_config table').css("color","grey")
+        }
+        else{
+            $('#xss_config table').css("color","white")
+        }
+    });
+
+    $('#config_save').click(function(){
+        var data = {"is_open":($('#config_xss_option').is(':checked')==true)?1:0,"is_debug":$('input[name="config_debug"]:checked').val(),
+            "eval_rewrite":$('input[name="config_eval"]:checked').val(), "script_protect":$('input[name="config_script"]:checked').val(),
+            "iframe_protect":$('input[name="config_iframe"]:checked').val()
+        };
+
+        $.post('/xss_config', data, function(e){
+            alert(e.msg);
+            window.location.href = window.location.href;
+        },'json');
+    });
+
+    $('#config_reset').click(function(){
+        $('input:radio').attr("checked",false);
+    });
+})
+</script>

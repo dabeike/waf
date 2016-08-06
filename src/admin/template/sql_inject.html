@@ -1,0 +1,175 @@
+{% include 'header.html' %}
+<script src="../jquery-1.10.2.min.js"></script>
+<script src="../bootstrap/js/bootstrap.min.js"></script>
+<section style="width:1140px;margin:30px auto;">
+    <ul id="myTab" class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#log" id="log-tab" role="tab" data-toggle="tab" aria-controls="log" aria-expanded="true">日志</a></li>
+        <li role="presentation" class=""><a href="#sql_config" role="tab" id="sql-config-tab" data-toggle="tab" aria-controls="sql_config" aria-expanded="false">设置</a></li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div id="log" role="tabpanel" class="tab-pane active in" aria-labelledby="log-tab" style="padding-top:10px">
+            <a href="/sql_log/get_all" style="font-weight: bold">查看所有日志</a>
+            <table class="table table-bordered" style="color: white;font-size: 13px;margin-top: 10px;word-break:break-all; word-wrap:break-word" width="1140px">
+                <tr style="background-color: #707070">
+                    <th width="40px">编号</th>
+                    <th width="80px">类型</th>
+                    <th>url</th>
+                    <th>payloads</th>
+                    <th width="50px">result</th>
+                    <th width="70px">detail</th>
+                    <th width="110px">操作</th>
+                </tr>
+                {% for log in data %}
+                <tr>
+                    <td><input type="checkbox" name="select" value="{{ log.id }}"/></td>
+                    <td>
+                        {% if log.type == 0 %}GET{% else %}POST{% endif %}
+                    </td>
+                    <td>{{ log.url }}</td>
+                    <td>{{ log.data }}</td>
+                    <td>{% if log.is_bad == 0 %}正常{% else %}恶意{% endif %}</td>
+                    <td><a href="/sql_detail/{{ log.id }}">查看详情</a></td>
+                    <td>
+                        <a href="javascript:statu({{ log.id }},1)">我知道了</a>&nbsp;&nbsp;<a href="javascript:statu({{ log.id }},2)" >误报</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+            <div style="margin-top: 20px;color:white">
+                <input type="checkbox" id="check_all" name="checkbox"/>&nbsp;&nbsp;<a href="javascript:statu_all(1)">我知道了</a>&nbsp;&nbsp;<a href="javascript:statu_all(2)">误报</a>
+            </div>
+        </div>
+        <div id="sql_config" role="tabpanel" class="tab-pane fade in" aria-labelledby="sql-config-tab" style="padding-top:10px">
+            <table style="line-height: 30px;margin-top: 10px;color:white;font-size: 14px">
+                <tr>
+                    <td colspan="2">
+                        {% if sql_config.basic.is_open %}
+                        <input type="checkbox" checked id="config_sql_inject_option"> &nbsp;<b>SQL注入防火墙</b>
+                        {% else %}
+                        <input type="checkbox" id="config_sql_inject_option"> &nbsp;<b>SQL注入防火墙</b>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <td>起始端口：</td>
+                    <td>
+                        <input type="text" name="start_port" id="start_port" value="{{sql_config.basic.start_port}}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>端口数量：</td>
+                    <td>
+                        <input type="text" name="port_num" id="port_num" value="{{sql_config.basic.port_num}}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>每个端口可接受最大线程数：</td>
+                    <td>
+                        <input type="text" name="per_port_num" id="per_port_num" value="{{sql_config.basic.per_port_num}}">
+                    </td>
+                </tr>
+                <tr>
+                    <td width="100px">防火墙通信缓冲区大小：</td>
+                    <td>
+                        <input type="text" name="max_bufer" id="max_bufer" value="{{sql_config.basic.max_bufer}}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>SQL注入防火墙运行IP：</td>
+                    <td>
+                        <input type="text" name="local_ip" id="local_ip" value="{{sql_config.basic.local_ip}}">
+                    </td>
+                </tr>
+                <tr height="40px">
+                    <td colspan="2"><a href="javascript:" id="config_save">保存</a>&nbsp;&nbsp;<a href="javascript:" id="config_reset">重置</a> </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</section>
+
+<script type="text/javascript">
+jQuery(function($){
+    $(document).ready(function(){
+        if(!{{ sql_config.basic.is_open }}){
+            $('#sql_config table').css("color","grey")
+        }
+    });
+
+    window.statu=function(id,statu){
+        $.post('/sql_statu',{'str':id,'statu':statu },function(e){
+            if(e['rows']>0){
+                alert('操作成功！共影响 '+e['rows']+' 条数据');
+                window.location.href=window.location.href;
+            }
+        },'json');
+    };
+
+    window.statu_all=function(statu){
+        var str = '';
+        $("input:checkbox[name='select']:checked").each(function(){
+            str += $(this).attr("value")+','
+        });
+        str = str.slice(0, -1);
+
+
+        $.post('/sql_statu',{'str': str,'statu':statu},function(e){
+            if(e['rows']>0){
+                alert('操作成功！共影响 '+e['rows']+' 条数据');
+                window.location.href=window.location.href;
+            }
+            else{
+                alert('操作失败！请刷新页面后重试');
+            }
+        });
+    };
+
+    $("#check_all").click(function(){
+        var temp = $("input[name='select']");
+        if(!this.checked){
+            temp.attr("checked", false);
+            temp.each(function(e){
+                temp[e].checked=false;
+            })
+        }else{
+            temp.attr("checked", true);
+            temp.each(function(e){
+                temp[e].checked=true;
+            })
+        }
+    });
+
+    $('#config_sql_inject_option').click(function(){
+        if(!this.checked){
+            $('#sql_config table').css("color","grey");
+            $("input:text").attr("disabled",true);
+
+        }
+        else{
+            $('#sql_config table').css("color","white")
+            $("input:text").attr("disabled",false);
+
+        }
+    });
+
+    $('#config_save').click(function(){
+        var data = {
+            "is_open":($('#config_sql_inject_option').is(':checked')==true)?1:0,
+            "start_port":$('input[name="start_port"]').val(),
+            "port_num":$('input[name="port_num"]').val(),
+            "per_port_num":$('input[name="per_port_num"]').val(),
+            "max_bufer":$('input[name="max_bufer"]').val(),
+            "local_ip":$('input[name="local_ip"]').val()
+        };
+
+        $.post('/sql_config', data, function(e){
+            alert(e.msg);
+            window.location.href = window.location.href;
+        },'json');
+    });
+
+    $('#config_reset').click(function(){
+        $('input:text').attr("value","");
+    });
+});
+</script>

@@ -1,0 +1,7 @@
+{
+  "name": "proxy",
+  "version": "0.0.1",
+  "dependencies": {
+    "node-sqlparser": "^1.0.2",
+  }
+}

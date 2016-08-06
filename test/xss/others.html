@@ -1,0 +1,13 @@
+<h1>其他类型 - XSS测试</h1>
+Test-1(普通iframe):<iframe src="iframe-child.html"></iframe><br/>
+Test-2(白名单iframe):<iframe src="iframe-white-child.html"></iframe><br/>
+Test-3(srcdoc iframe):<iframe srcdoc="<script src=white.js><\/script>"></iframe><br/>
+Test-4(eval变形): <img src="anobymous.jpg" width="100px" onmouseout="window['ev'+'al'](this.align)" align="alert('hacked by bb')"><br/>
+Test-5(setTimeout):
+<script type="text/javascript">
+	setTimeout("alert('hacked by bb!')",1000); 
+</script><br/>
+Test-6(setInterval):
+<script type="text/javascript">
+	setInterval("alert('hacked by bb!')",1000); 
+</script><br/>

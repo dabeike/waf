@@ -1,0 +1,63 @@
+{% include 'header.html' %}
+<section style="width:1140px;margin:30px auto;">
+	<div style="text-align: center;margin: 20px;font-size: 30px;color: white;">
+		近期网站攻击趋势
+	</div>
+	<script src="../echarts/build/dist/echarts-all.js"></script>
+	<div id="main" style="width:100%;height: 400px"></div>
+	<div style="text-align: center;margin-top: 20px;font-size: 14px;color: white;">
+		成功抵御 <b>{{ times_sql_inject }}</b> 次SQL注入攻击，成功预警 <b>{{ times_xss }}</b> 条XSS攻击
+	</div>
+</section>
+<script type="text/javascript">
+	var myChart = echarts.init(document.getElementById('main'));
+	var option = {
+	    tooltip : {
+	        trigger: 'axis'
+	    },
+	    legend: {
+	        data:['XSS','SQL注入'],
+	        textStyle:{color: 'auto'}
+	    },
+	    toolbox: {
+	        show : true
+	    },
+	    calculable : true,
+	    xAxis : [
+	        {
+	            type : 'category',
+	            boundaryGap : false,
+	            data : [
+		            {% for data in xss_data %}
+		            	'{{ data.date }}',
+		            {% endfor %}
+	            ]
+	        }
+	    ],
+	    yAxis : [
+	        {
+	            type : 'value',
+	            axisLabel : {
+	                formatter: '{value}'
+	            }
+	        }
+	    ],
+	    series : [
+	        {
+	            name:'XSS',
+	            type:'line',
+	            data:[
+	            	{% for data in xss_data %}
+	            		{{ data.num }},
+	            	{% endfor %}
+	            ],
+	        },{
+	            name:'SQL注入',
+	            type:'line',
+	            data:[1, 12, 2, 5, 3, 2, 0, 11, 15, 13, 12, 13, 10,22,35],
+	    	}	    
+	    ]
+	};
+
+	myChart.setOption(option);
+</script>

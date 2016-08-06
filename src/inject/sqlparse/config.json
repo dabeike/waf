@@ -1,0 +1,8 @@
+{
+  "start_port": 10010,
+  "port_num": 10,
+  "per_port_num" : 10,
+  "per_port_thread": 10,
+  "max_bufer": 1024,
+  "local_ip": "127.0.0.1"
+}

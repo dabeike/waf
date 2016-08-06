@@ -1,0 +1,34 @@
+{% include 'header.html' %}
+<section style="width:1140px;margin:30px auto;">
+	<div style="color:white;font-size: 14px;margin-bottom: 11px;padding-bottom:4px;border-bottom:2px solid lightslategrey"><a href="/xss.html">SQL注入防御系统</a>&nbsp;&nbsp;>&nbsp;&nbsp;sql_injection_{{data.id}} </div>
+	<table style="color:white;font-size: 14px;line-height: 35px" border="1" frame="void" width="1140px" rules="rows">
+		<tr>
+			<th>请求类型：</th>
+			<td>{% if log.type == 1 %}GET{% else %}POST{% endif %}</td>
+		</tr>
+		<tr>
+			<th>URL：</th>
+			<td>{{ data.url }}</td>
+		</tr>
+		<tr>
+			<th>payload:</th>
+			<td>{{ data.data }}</td>
+		</tr>
+		<tr>
+			<th>判定结果</th>
+			<td>{% if log.is_bad == 0 %}正常{% else %}恶意{% endif %}</td>
+		</tr>
+		<tr>
+			<th>HTTP请求回放:</th>
+			<td><iframe srcdoc="{{ data.data }}" sandbox=""></iframe></td>
+		</tr>
+		<tr>
+			<th>hacker信息</th>
+			<td>cookie: {{ data.cookie }}<br/>ip: {{ data.ip }}</td>
+		</tr>
+		<tr>
+			<th>时间</th>
+			<td>{{ data.time }}</td>
+		</tr>
+	</table>
+</section>

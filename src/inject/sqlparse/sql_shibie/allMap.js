@@ -1,0 +1,1 @@
+{"Punctuation": 6, "DML": 8, "Builtin": 19, "Multiline": 17, "IdentifierList": 7, "Function": 10, "Integer": 12, "Placeholder": 16, "Comparison": 11, "Keyword": 5, "len": 22, "Wildcard": 18, "Error": 3, "Parenthesis": 9, "Hexadecimal": 21, "Where": 14, "Order": 13, "DDL": 4, "Comment": 20, "Float": 2, "Single": 1, "Operator": 15}
